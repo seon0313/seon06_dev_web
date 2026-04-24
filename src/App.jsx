@@ -1,23 +1,36 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+
+/* ─── Projects 데이터 — 여기에 추가하세요 ─────────── */
+const PROJECTS = [
+  // { id: 1, category: 'software', title: '프로젝트 이름', desc: '설명', link: 'https://github.com/seon0313/...' },
+  // { id: 2, category: 'server',   title: '게임 서버',     desc: '설명', link: '' },
+  // { id: 3, category: 'hardware', title: '하드웨어 프로젝트', desc: '설명', link: '' },
+]
+
+const CATEGORIES = [
+  { key: 'all',      label: 'All' },
+  { key: 'software', label: 'Software' },
+  { key: 'hardware', label: 'Hardware' },
+  { key: 'server',   label: 'Servers' },
+]
 
 /* ─── CONFIG — 여기만 수정하세요 ──────────────────── */
 const ME = {
-  name:       'Your Name',
-  initials:   'YN',
-  role:       'Full-Stack Developer',
-  tagline:    'I build things for the web.',
+  name:       'Choo Yun Seon',
+  initials:   'YS',
+  role:       'Software Developer',
+  tagline:    'I build things that matter.',
   location:   'Seoul, Korea',
-  email:      'hello@yourname.dev',
-  github:     'https://github.com/yourname',
+  email:      'seon06.dev@gmail.com',
+  github:     'https://github.com/seon0313',
   bio: [
-    '웹 개발자입니다. 사용자가 실제로 쓰고 싶어지는 것들을 만드는 데 집중합니다.',
-    '프론트엔드부터 백엔드, 인프라까지 폭넓게 다루며, 코드 품질과 사용자 경험 두 가지를 모두 중요하게 생각합니다.',
+    '소프트웨어 개발자입니다. 문제를 명확히 이해하고, 단순하고 견고한 해결책을 만드는 데 집중합니다.',
+    'Python, Java, Kotlin, C 등 다양한 언어를 다루며, 좋은 코드와 좋은 사용자 경험 모두를 중요하게 생각합니다.',
   ],
   skills: [
-    { label: 'Language', items: 'TypeScript · Python · Go' },
-    { label: 'Frontend',  items: 'React · Next.js · Tailwind CSS' },
-    { label: 'Backend',   items: 'Node.js · FastAPI · PostgreSQL' },
-    { label: 'Infra',     items: 'Cloudflare · Docker · AWS' },
+    { label: 'Language', items: 'Python · Java · Kotlin · C' },
+    { label: 'Contact',  items: 'seon06.dev@gmail.com' },
+    { label: 'GitHub',   items: 'github.com/seon0313' },
   ],
 }
 /* ───────────────────────────────────────────────────── */
@@ -34,6 +47,7 @@ export default function App() {
     <div style={{ minHeight: '100dvh' }}>
       <Nav initials={ME.initials} github={ME.github} />
       <Hero visible={visible} me={ME} />
+      <Projects />
       <About me={ME} />
       <Footer initials={ME.initials} />
     </div>
@@ -41,17 +55,27 @@ export default function App() {
 }
 
 /* ─── Nav ────────────────────────────────────────────── */
+const NAV_LINKS = [
+  { label: 'About',    href: '#about',                    external: false },
+  { label: 'Projects', href: '#projects',                 external: false },
+  { label: 'Blog',     href: 'https://blog.seon06.dev',   external: true  },
+]
+
 function Nav({ initials, github }) {
   return (
     <nav style={styles.nav}>
       <span style={styles.navLogo}>{initials}</span>
       <div style={styles.navLinks}>
-        <a
-          href="#about"
-          style={styles.navLink}
-          onMouseEnter={e => e.target.style.color = 'var(--accent)'}
-          onMouseLeave={e => e.target.style.color = 'var(--text-muted)'}
-        >About</a>
+        {NAV_LINKS.map(({ label, href, external }) => (
+          <a
+            key={label}
+            href={href}
+            {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+            style={styles.navLink}
+            onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
+          >{label}</a>
+        ))}
         <a
           href={github}
           target="_blank"
@@ -150,6 +174,66 @@ function Hero({ visible, me }) {
       <div style={styles.scrollHint}>
         <span style={styles.scrollText}>Scroll</span>
         <div style={styles.scrollArrow}>↓</div>
+      </div>
+    </section>
+  )
+}
+
+/* ─── Projects ───────────────────────────────────────── */
+function Projects() {
+  const [active, setActive] = useState('all')
+
+  const filtered = useCallback(
+    () => active === 'all' ? PROJECTS : PROJECTS.filter(p => p.category === active),
+    [active]
+  )()
+
+  return (
+    <section id="projects" style={styles.projects}>
+      <div style={styles.projectsInner}>
+        <div style={styles.projectsHeader}>
+          <div>
+            <p style={styles.sectionLabel}>— Projects</p>
+            <h2 style={styles.projectsHeading}>What I've built.</h2>
+          </div>
+          <div style={styles.tabs}>
+            {CATEGORIES.map(({ key, label }) => (
+              <button
+                key={key}
+                onClick={() => setActive(key)}
+                style={{
+                  ...styles.tab,
+                  ...(active === key ? styles.tabActive : {}),
+                }}
+              >{label}</button>
+            ))}
+          </div>
+        </div>
+
+        {filtered.length === 0 ? (
+          <div style={styles.emptyState}>
+            <p style={styles.emptyText}>프로젝트를 준비 중입니다.</p>
+          </div>
+        ) : (
+          <div style={styles.projectGrid}>
+            {filtered.map(p => (
+              <a
+                key={p.id}
+                href={p.link || undefined}
+                target={p.link ? '_blank' : undefined}
+                rel="noopener noreferrer"
+                style={{ ...styles.projectCard, ...(!p.link ? { cursor: 'default' } : {}) }}
+                onMouseEnter={e => { if (p.link) e.currentTarget.style.borderColor = 'var(--accent)' }}
+                onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--line)'}
+              >
+                <span style={styles.projectCatBadge}>{CATEGORIES.find(c => c.key === p.category)?.label}</span>
+                <h3 style={styles.projectTitle}>{p.title}</h3>
+                <p style={styles.projectDesc}>{p.desc}</p>
+                {p.link && <span style={styles.projectArrow}>↗</span>}
+              </a>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )
@@ -398,6 +482,103 @@ const styles = {
   scrollArrow: {
     fontSize: '16px',
     animation: 'scrollBob 1.8s ease-in-out infinite',
+  },
+
+  /* Projects */
+  projects: {
+    padding: '120px 48px',
+    borderTop: '1px solid var(--line)',
+  },
+  projectsInner: {
+    maxWidth: '1100px', margin: '0 auto',
+    display: 'flex', flexDirection: 'column', gap: '52px',
+  },
+  projectsHeader: {
+    display: 'flex',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: '24px',
+  },
+  projectsHeading: {
+    fontFamily: 'var(--font-display)',
+    fontSize: 'clamp(40px, 4.5vw, 60px)',
+    fontWeight: 300,
+    lineHeight: 1.1,
+    letterSpacing: '-0.01em',
+    marginTop: '12px',
+  },
+  tabs: {
+    display: 'flex', gap: '6px', flexWrap: 'wrap',
+  },
+  tab: {
+    fontFamily: 'var(--font-body)',
+    fontSize: '13px', fontWeight: 400,
+    padding: '6px 16px',
+    borderRadius: '100px',
+    border: '1px solid var(--line)',
+    background: 'transparent',
+    color: 'var(--text-muted)',
+    cursor: 'pointer',
+    transition: 'all 0.18s',
+  },
+  tabActive: {
+    background: 'var(--text)',
+    color: 'var(--bg)',
+    borderColor: 'var(--text)',
+  },
+  projectGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+    gap: '20px',
+  },
+  projectCard: {
+    position: 'relative',
+    display: 'flex', flexDirection: 'column', gap: '10px',
+    padding: '28px 24px',
+    background: 'var(--bg-card)',
+    border: '1px solid var(--line)',
+    borderRadius: '16px',
+    transition: 'border-color 0.2s',
+    textDecoration: 'none', color: 'inherit',
+  },
+  projectCatBadge: {
+    fontFamily: 'var(--font-body)',
+    fontSize: '10px', fontWeight: 500,
+    textTransform: 'uppercase', letterSpacing: '0.1em',
+    color: 'var(--accent)',
+  },
+  projectTitle: {
+    fontFamily: 'var(--font-display)',
+    fontSize: '22px', fontWeight: 400,
+    letterSpacing: '-0.01em',
+    color: 'var(--text)',
+  },
+  projectDesc: {
+    fontFamily: 'var(--font-body)',
+    fontSize: '14px', fontWeight: 300,
+    lineHeight: 1.7,
+    color: 'var(--text-muted)',
+    flex: 1,
+  },
+  projectArrow: {
+    fontFamily: 'var(--font-body)',
+    fontSize: '16px',
+    color: 'var(--accent)',
+    marginTop: '8px',
+  },
+  emptyState: {
+    padding: '80px 0',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    border: '1px dashed var(--line)',
+    borderRadius: '16px',
+  },
+  emptyText: {
+    fontFamily: 'var(--font-body)',
+    fontSize: '15px',
+    color: 'var(--text-muted)',
   },
 
   /* About */
