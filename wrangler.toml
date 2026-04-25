@@ -1,3 +1,8 @@
 name = "seon06-dev-mainweb"
 compatibility_date = "2026-04-24"
 pages_build_output_dir = "dist"
+
+[[d1_databases]]
+binding       = "DB"
+database_name = "seon06-posts"
+database_id   = "b65f8ff0-da9b-45d3-a2db-771161b09107"

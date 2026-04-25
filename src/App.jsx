@@ -1,30 +1,23 @@
 import { useEffect, useState, useCallback } from 'react'
 
-/* ─── Projects 데이터 — 여기에 추가하세요 ─────────── */
-const PROJECTS = [
-  // { id: 1, category: 'software', title: '프로젝트 이름', desc: '설명', link: 'https://github.com/seon0313/...' },
-  // { id: 2, category: 'server',   title: '게임 서버',     desc: '설명', link: '' },
-  // { id: 3, category: 'hardware', title: '하드웨어 프로젝트', desc: '설명', link: '' },
-]
-
 const CATEGORIES = [
   { key: 'all',      label: 'All' },
   { key: 'software', label: 'Software' },
   { key: 'hardware', label: 'Hardware' },
-  { key: 'server',   label: 'Servers' },
+  { key: 'service',  label: 'Service' },
 ]
 
 /* ─── CONFIG — 여기만 수정하세요 ──────────────────── */
 const ME = {
   name:       'Choo Yun Seon',
   initials:   'YS',
-  role:       'Software Developer',
+  role:       'Researcher',
   tagline:    'I build things that matter.',
   location:   'Seoul, Korea',
   email:      'seon06.dev@gmail.com',
   github:     'https://github.com/seon0313',
   bio: [
-    '소프트웨어 개발자입니다. 문제를 명확히 이해하고, 단순하고 견고한 해결책을 만드는 데 집중합니다.',
+    '문제를 명확히 이해하고, 단순하고 견고한 해결책을 만드는 데 집중합니다.',
     'Python, Java, Kotlin, C 등 다양한 언어를 다루며, 좋은 코드와 좋은 사용자 경험 모두를 중요하게 생각합니다.',
   ],
   skills: [
@@ -56,22 +49,23 @@ export default function App() {
 
 /* ─── Nav ────────────────────────────────────────────── */
 const NAV_LINKS = [
-  { label: 'About',    href: '#about',                    external: false },
-  { label: 'Projects', href: '#projects',                 external: false },
+  { label: 'About',    href: '#about',                    external: false, mobileHide: true },
+  { label: 'Projects', href: '#projects',                 external: false, mobileHide: true },
   { label: 'Blog',     href: 'https://blog.seon06.dev',   external: true  },
 ]
 
 function Nav({ initials, github }) {
   return (
-    <nav style={styles.nav}>
+    <nav style={styles.nav} className="c-nav">
       <span style={styles.navLogo}>{initials}</span>
-      <div style={styles.navLinks}>
-        {NAV_LINKS.map(({ label, href, external }) => (
+      <div style={styles.navLinks} className="c-nav-links">
+        {NAV_LINKS.map(({ label, href, external, mobileHide }) => (
           <a
             key={label}
             href={href}
             {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
             style={styles.navLink}
+            className={mobileHide ? 'c-nav-link-hide' : ''}
             onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
             onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
           >{label}</a>
@@ -92,11 +86,11 @@ function Nav({ initials, github }) {
 /* ─── Hero ───────────────────────────────────────────── */
 function Hero({ visible, me }) {
   return (
-    <section style={styles.hero}>
+    <section style={styles.hero} className="c-hero-section">
       {/* 배경 장식 */}
       <div style={styles.heroBgCircle} />
 
-      <div style={styles.heroInner}>
+      <div style={styles.heroInner} className="c-hero-inner">
         {/* 좌 — 텍스트 */}
         <div style={styles.heroLeft}>
           <p style={{
@@ -106,10 +100,13 @@ function Hero({ visible, me }) {
             ✦ {me.location}
           </p>
 
-          <h1 style={{
-            ...styles.heroName,
-            animation: visible ? 'fadeUp 0.8s var(--ease-out) 0.2s both' : 'none',
-          }}>
+          <h1
+            className="c-hero-name"
+            style={{
+              ...styles.heroName,
+              animation: visible ? 'fadeUp 0.8s var(--ease-out) 0.2s both' : 'none',
+            }}
+          >
             {me.name.split(' ').map((word, i) => (
               <span key={i} style={{ display: 'block' }}>{word}</span>
             ))}
@@ -153,10 +150,13 @@ function Hero({ visible, me }) {
         </div>
 
         {/* 우 — 카드 */}
-        <div style={{
-          ...styles.heroCard,
-          animation: visible ? 'fadeUp 0.9s var(--ease-out) 0.4s both' : 'none',
-        }}>
+        <div
+          className="c-hero-card"
+          style={{
+            ...styles.heroCard,
+            animation: visible ? 'fadeUp 0.9s var(--ease-out) 0.4s both' : 'none',
+          }}
+        >
           <div style={styles.heroCardAvatar}>
             {me.initials}
           </div>
@@ -182,16 +182,29 @@ function Hero({ visible, me }) {
 /* ─── Projects ───────────────────────────────────────── */
 function Projects() {
   const [active, setActive] = useState('all')
+  const [projects, setProjects] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/posts')
+      .then(r => r.json())
+      .then(d => setProjects(d.posts.map(p => ({
+        id: p.id, category: p.category,
+        title: p.title, desc: p.description, link: p.link || '',
+      }))))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
 
   const filtered = useCallback(
-    () => active === 'all' ? PROJECTS : PROJECTS.filter(p => p.category === active),
-    [active]
+    () => active === 'all' ? projects : projects.filter(p => p.category === active),
+    [active, projects]
   )()
 
   return (
-    <section id="projects" style={styles.projects}>
+    <section id="projects" style={styles.projects} className="c-section">
       <div style={styles.projectsInner}>
-        <div style={styles.projectsHeader}>
+        <div style={styles.projectsHeader} className="c-proj-header">
           <div>
             <p style={styles.sectionLabel}>— Projects</p>
             <h2 style={styles.projectsHeading}>What I've built.</h2>
@@ -210,7 +223,11 @@ function Projects() {
           </div>
         </div>
 
-        {filtered.length === 0 ? (
+        {loading ? (
+          <div style={styles.emptyState}>
+            <p style={styles.emptyText}>불러오는 중...</p>
+          </div>
+        ) : filtered.length === 0 ? (
           <div style={styles.emptyState}>
             <p style={styles.emptyText}>프로젝트를 준비 중입니다.</p>
           </div>
@@ -242,8 +259,8 @@ function Projects() {
 /* ─── About ──────────────────────────────────────────── */
 function About({ me }) {
   return (
-    <section id="about" style={styles.about}>
-      <div style={styles.aboutInner}>
+    <section id="about" style={styles.about} className="c-section">
+      <div style={styles.aboutInner} className="c-about-inner">
         <div style={styles.aboutLeft}>
           <p style={styles.sectionLabel}>— About</p>
           <h2 style={styles.aboutHeading}>
@@ -252,7 +269,7 @@ function About({ me }) {
           </h2>
         </div>
 
-        <div style={styles.aboutRight}>
+        <div style={styles.aboutRight} className="c-about-right">
           {me.bio.map((para, i) => (
             <p key={i} style={{ ...styles.aboutPara, ...(i > 0 ? { marginTop: '1.2em' } : {}) }}>
               {para}
@@ -263,6 +280,7 @@ function About({ me }) {
             <a
               href={`mailto:${me.email}`}
               style={styles.contactLink}
+              className="c-contact-link"
               onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
               onMouseLeave={e => e.currentTarget.style.color = 'var(--text)'}
             >
@@ -273,6 +291,7 @@ function About({ me }) {
               target="_blank"
               rel="noopener noreferrer"
               style={styles.contactLink}
+              className="c-contact-link"
               onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
               onMouseLeave={e => e.currentTarget.style.color = 'var(--text)'}
             >
@@ -288,7 +307,7 @@ function About({ me }) {
 /* ─── Footer ─────────────────────────────────────────── */
 function Footer({ initials }) {
   return (
-    <footer style={styles.footer}>
+    <footer style={styles.footer} className="c-footer">
       <span style={styles.footerLogo}>{initials}</span>
       <span style={styles.footerCopy}>© {new Date().getFullYear()} · Built with React + Cloudflare Pages</span>
     </footer>
