@@ -397,6 +397,401 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* ─── Responsive ─────────────────────────────────────── */
+/* ─── Minecraft Page ─────────────────────────────────── */
+.mc-root {
+  min-height: 100dvh;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Auth */
+.mc-auth-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+.mc-auth-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 4px 40px rgba(0,0,0,0.06);
+}
+.mc-auth-title {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 300;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+.mc-auth-sub {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+}
+
+/* Dashboard header */
+.mc-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 40px;
+  background: rgba(247,246,242,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.mc-header-logo {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text);
+}
+.mc-code-badge {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 100px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  letter-spacing: 0.03em;
+}
+
+/* Dashboard main */
+.mc-main {
+  flex: 1;
+  padding: 40px;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.mc-section {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 32px;
+}
+.mc-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.mc-section-title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+/* Server grid */
+.mc-server-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+.mc-server-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px 20px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  transition: border-color 0.2s;
+}
+.mc-server-card:hover { border-color: var(--accent); }
+.mc-server-name {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text);
+}
+.mc-server-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.mc-server-version {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Status dot */
+.mc-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.mc-status-dot.online  { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,0.5); }
+.mc-status-dot.offline { background: var(--text-muted); }
+
+/* Type badge */
+.mc-type-badge {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 100px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.mc-type-badge.vanilla { background: #d1fae5; color: #065f46; }
+.mc-type-badge.forge   { background: #fef3c7; color: #92400e; }
+.mc-type-badge.fabric  { background: #ede9fe; color: #5b21b6; }
+
+/* Server card actions */
+.mc-card-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+
+/* Create form */
+.mc-type-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.mc-type-btn {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 400;
+  padding: 7px 18px;
+  border-radius: 100px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.mc-type-btn:hover { border-color: var(--text); color: var(--text); }
+.mc-type-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+.mc-select {
+  font-family: var(--font-body);
+  font-size: 14px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+  transition: border-color 0.18s;
+  width: 100%;
+}
+.mc-select:focus { border-color: var(--accent); }
+
+.mc-form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mc-label {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+/* Console */
+.mc-console-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.mc-console-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+}
+.mc-console-title {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.mc-console-output {
+  flex: 1;
+  min-height: 280px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: #0f1117;
+  padding: 20px;
+  font-family: 'Fira Code', 'Cascadia Code', 'SF Mono', monospace;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.mc-log-line {
+  display: block;
+  color: #cdd6f4;
+  word-break: break-all;
+}
+.mc-log-line.cmd { color: #a8ff78; }
+.mc-console-input-row {
+  display: flex;
+  align-items: center;
+  border-top: 1px solid #1e2030;
+  background: #0f1117;
+}
+.mc-console-prompt {
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+  color: #a8ff78;
+  padding: 12px 0 12px 16px;
+  user-select: none;
+  flex-shrink: 0;
+}
+.mc-console-input {
+  flex: 1;
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+  color: #cdd6f4;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 12px 10px;
+  caret-color: #a8ff78;
+}
+.mc-console-send {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 8px 16px;
+  margin: 6px 10px 6px 0;
+  border-radius: 6px;
+  border: 1px solid #2a2d3e;
+  background: #1e2030;
+  color: #a8ff78;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.mc-console-send:hover { background: #2a2d3e; }
+
+/* Button variants */
+.mc-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 9px 22px;
+  border-radius: 100px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.mc-btn-primary:hover:not(:disabled) { background: #1a3d5c; }
+.mc-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.mc-btn-ghost {
+  font-family: var(--font-body);
+  font-size: 13px;
+  padding: 7px 16px;
+  border-radius: 100px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.mc-btn-ghost:hover { border-color: var(--text); color: var(--text); }
+
+.mc-btn-sm {
+  font-family: var(--font-body);
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.mc-btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+.mc-btn-sm.danger:hover { border-color: #c0392b; color: #c0392b; }
+
+.mc-error {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: #c0392b;
+}
+.mc-muted {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.mc-empty {
+  padding: 60px 0;
+  text-align: center;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+}
+.mc-input {
+  font-family: var(--font-body);
+  font-size: 14px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.18s;
+  width: 100%;
+}
+.mc-input:focus { border-color: var(--accent); }
+
+/* ─── Responsive (Minecraft) ─────────────────────────── */
+@media (max-width: 768px) {
+  .mc-header { padding: 14px 20px; }
+  .mc-main   { padding: 20px; }
+  .mc-section { padding: 20px; }
+  .mc-server-grid { grid-template-columns: 1fr; }
+  .mc-console-output { min-height: 200px; max-height: 260px; }
+  .mc-auth-card { padding: 32px 24px; }
+}
+
 @media (max-width: 768px) {
   .c-nav          { padding: 14px 20px !important; }
   .c-nav-links    { gap: 4px !important; }

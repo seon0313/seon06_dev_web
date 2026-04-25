@@ -130,11 +130,14 @@ export default function Admin() {
 
       <main className="adm-main">
         {view === 'list' && (
-          <PostList
-            token={token}
-            onEdit={id => { setEditId(id); setView('edit') }}
-            onNew={() => { setEditId(null); setView('edit') }}
-          />
+          <>
+            <PostList
+              token={token}
+              onEdit={id => { setEditId(id); setView('edit') }}
+              onNew={() => { setEditId(null); setView('edit') }}
+            />
+            <AuthCodesSection />
+          </>
         )}
         {view === 'edit' && (
           <PostEditor
@@ -461,6 +464,186 @@ function PostEditor({ editId, token, onSaved, onBack }) {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+/* ─── AuthCodesSection ──────────────────────────────── */
+function AuthCodesSection() {
+  const [codes, setCodes] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [genLabel, setGenLabel] = useState('')
+  const [customCode, setCustomCode] = useState('')
+  const [customLabel, setCustomLabel] = useState('')
+  const [error, setError] = useState('')
+  const [creating, setCreating] = useState(false)
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/auth-codes', { headers: authHeader() })
+      const data = await res.json().catch(() => ({}))
+      setCodes(data.codes || [])
+    } catch {}
+    finally { setLoading(false) }
+  }, [])
+
+  useEffect(() => { load() }, [load])
+
+  async function createCode(code, label) {
+    if (!code.trim()) return
+    setCreating(true)
+    setError('')
+    try {
+      const res = await fetch('/api/auth-codes', {
+        method: 'POST',
+        headers: { ...authHeader(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: code.trim(), label: label.trim() }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) { setError(data.error || `오류 (${res.status})`); return }
+      load()
+    } catch {
+      setError('요청에 실패했습니다.')
+    } finally {
+      setCreating(false)
+    }
+  }
+
+  async function toggleActive(row) {
+    await fetch('/api/auth-codes', {
+      method: 'PUT',
+      headers: { ...authHeader(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: row.id, is_active: row.is_active ? 0 : 1 }),
+    })
+    load()
+  }
+
+  async function deleteCode(id) {
+    if (!confirm('삭제하시겠습니까?')) return
+    await fetch('/api/auth-codes', {
+      method: 'DELETE',
+      headers: { ...authHeader(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    })
+    load()
+  }
+
+  return (
+    <div className="adm-section">
+      <div className="adm-section-header">
+        <h2 className="adm-section-title">인증코드</h2>
+      </div>
+
+      {loading ? (
+        <p className="adm-muted">불러오는 중...</p>
+      ) : codes.length === 0 ? (
+        <div className="adm-empty" style={{ marginBottom: '24px' }}>
+          <p className="adm-muted">등록된 인증코드가 없습니다.</p>
+        </div>
+      ) : (
+        <div className="adm-table-wrap" style={{ marginBottom: '24px' }}>
+          <table className="adm-table">
+            <thead>
+              <tr>
+                <th>코드</th>
+                <th>라벨</th>
+                <th>생성일</th>
+                <th>상태</th>
+                <th>관리</th>
+              </tr>
+            </thead>
+            <tbody>
+              {codes.map(row => (
+                <tr key={row.id}>
+                  <td>
+                    <span style={{ fontFamily: 'monospace', fontSize: '13px' }}>
+                      {row.code}
+                    </span>
+                  </td>
+                  <td className="adm-muted" style={{ fontSize: '13px' }}>{row.label || '—'}</td>
+                  <td className="adm-muted" style={{ fontSize: '12px' }}>{row.created_at?.slice(0, 10)}</td>
+                  <td>
+                    <button
+                      className={`adm-status-badge ${row.is_active ? 'adm-published' : 'adm-draft'}`}
+                      onClick={() => toggleActive(row)}
+                    >
+                      {row.is_active ? '활성' : '비활성'}
+                    </button>
+                  </td>
+                  <td>
+                    <button className="adm-btn-sm adm-btn-danger" onClick={() => deleteCode(row.id)}>삭제</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', paddingTop: '16px', borderTop: '1px solid var(--line)' }}>
+        {error && <p className="adm-error">{error}</p>}
+
+        {/* UUID 자동 생성 */}
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <input
+            className="adm-input"
+            style={{ flex: 1, minWidth: '160px' }}
+            placeholder="라벨 (선택)"
+            value={genLabel}
+            onChange={e => setGenLabel(e.target.value)}
+          />
+          <button
+            className="adm-btn-primary"
+            disabled={creating}
+            onClick={() => {
+              const code = crypto.randomUUID()
+              createCode(code, genLabel)
+              setGenLabel('')
+            }}
+          >
+            UUID 생성
+          </button>
+        </div>
+
+        <p className="adm-muted" style={{ fontSize: '12px', textAlign: 'center' }}>또는 직접 입력</p>
+
+        {/* 커스텀 코드 */}
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <input
+            className="adm-input"
+            style={{ flex: 2, minWidth: '160px' }}
+            placeholder="코드 문자열"
+            value={customCode}
+            onChange={e => setCustomCode(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && customCode.trim()) {
+                createCode(customCode, customLabel)
+                setCustomCode('')
+                setCustomLabel('')
+              }
+            }}
+          />
+          <input
+            className="adm-input"
+            style={{ flex: 1, minWidth: '120px' }}
+            placeholder="라벨 (선택)"
+            value={customLabel}
+            onChange={e => setCustomLabel(e.target.value)}
+          />
+          <button
+            className="adm-btn-ghost"
+            disabled={creating || !customCode.trim()}
+            onClick={() => {
+              createCode(customCode, customLabel)
+              setCustomCode('')
+              setCustomLabel('')
+            }}
+          >
+            추가
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
