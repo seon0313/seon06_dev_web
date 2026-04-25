@@ -1,7 +1,4 @@
 .dev.vars
 .wrangler
 dist
-functions
-migrations
 node_modules
-public
