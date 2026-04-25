@@ -44,17 +44,18 @@ export async function onRequestPut({ params, request, env }) {
   let body
   try { body = await request.json() } catch { return json({ error: 'Invalid JSON' }, 400) }
 
-  const { title, category, description, content, link, published } = body
+  const { title, category, description, content, js, link, published } = body
   if (!title) return json({ error: 'title required' }, 400)
 
   await env.DB.prepare(
-    `UPDATE posts SET title=?, category=?, description=?, content=?, link=?,
+    `UPDATE posts SET title=?, category=?, description=?, content=?, js=?, link=?,
      published=?, updated_at=datetime('now') WHERE id=?`
   ).bind(
     title,
     category || 'software',
     description || '',
     content || '',
+    js || '',
     link || '',
     published ? 1 : 0,
     params.id

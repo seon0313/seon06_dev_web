@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
+import { Link } from 'react-router-dom'
 
 const CATEGORIES = [
   { key: 'all',      label: 'All' },
@@ -234,20 +235,18 @@ function Projects() {
         ) : (
           <div style={styles.projectGrid}>
             {filtered.map(p => (
-              <a
+              <Link
                 key={p.id}
-                href={p.link || undefined}
-                target={p.link ? '_blank' : undefined}
-                rel="noopener noreferrer"
-                style={{ ...styles.projectCard, ...(!p.link ? { cursor: 'default' } : {}) }}
-                onMouseEnter={e => { if (p.link) e.currentTarget.style.borderColor = 'var(--accent)' }}
+                to={`/posts/${p.id}`}
+                style={styles.projectCard}
+                onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--accent)'}
                 onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--line)'}
               >
                 <span style={styles.projectCatBadge}>{CATEGORIES.find(c => c.key === p.category)?.label}</span>
                 <h3 style={styles.projectTitle}>{p.title}</h3>
                 <p style={styles.projectDesc}>{p.desc}</p>
-                {p.link && <span style={styles.projectArrow}>↗</span>}
-              </a>
+                <span style={styles.projectArrow}>→</span>
+              </Link>
             ))}
           </div>
         )}

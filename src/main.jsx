@@ -4,12 +4,14 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
 import Admin from './Admin.jsx'
+import PostPage from './PostPage.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<App />} />
+        <Route path="/posts/:id" element={<PostPage />} />
         <Route path="/admin/*" element={<Admin />} />
       </Routes>
     </BrowserRouter>

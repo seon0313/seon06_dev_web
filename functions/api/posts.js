@@ -50,17 +50,18 @@ export async function onRequestPost({ request, env }) {
   let body
   try { body = await request.json() } catch { return json({ error: 'Invalid JSON' }, 400) }
 
-  const { title, category, description, content, link, published } = body
+  const { title, category, description, content, js, link, published } = body
   if (!title) return json({ error: 'title required' }, 400)
 
   const result = await env.DB.prepare(
-    `INSERT INTO posts (title, category, description, content, link, published)
-     VALUES (?, ?, ?, ?, ?, ?)`
+    `INSERT INTO posts (title, category, description, content, js, link, published)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`
   ).bind(
     title,
     category || 'software',
     description || '',
     content || '',
+    js || '',
     link || '',
     published ? 1 : 0
   ).run()

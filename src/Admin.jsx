@@ -1,5 +1,93 @@
 import { useState, useEffect, useCallback } from 'react'
 
+function buildSrcDoc(html, js) {
+  if (!html && !js) return ''
+  return `<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:          #f7f6f2;
+    --bg-card:     #ffffff;
+    --text:        #111110;
+    --text-muted:  #888884;
+    --accent:      #2c5f8a;
+    --accent-soft: #dce8f3;
+    --line:        #e5e3de;
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-body:    'DM Sans', system-ui, sans-serif;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 64px 48px 120px;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+    margin-bottom: 0.6em;
+    margin-top: 1.6em;
+    color: var(--text);
+  }
+  h1 { font-size: clamp(32px, 4vw, 52px); }
+  h2 { font-size: clamp(24px, 3vw, 38px); }
+  h3 { font-size: clamp(18px, 2vw, 26px); }
+  p  { margin-bottom: 1.1em; }
+  a  { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+  ul, ol { padding-left: 1.4em; margin-bottom: 1.1em; }
+  li { margin-bottom: 0.4em; }
+  hr { border: none; border-top: 1px solid var(--line); margin: 2em 0; }
+  code {
+    font-family: 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.875em;
+    background: var(--accent-soft);
+    color: var(--accent);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  pre {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    padding: 20px 24px;
+    border-radius: 12px;
+    overflow-x: auto;
+    margin-bottom: 1.4em;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+  img { max-width: 100%; border-radius: 12px; margin: 0.6em 0; }
+  blockquote {
+    border-left: 3px solid var(--accent);
+    padding-left: 1.2em;
+    color: var(--text-muted);
+    font-style: italic;
+    margin: 1.4em 0;
+  }
+</style>
+</head>
+<body>
+${html || ''}
+${js ? `<script>\n${js}\n</script>` : ''}
+</body>
+</html>`
+}
+
 const CATEGORIES = [
   { key: 'software', label: 'Software' },
   { key: 'hardware', label: 'Hardware' },
@@ -206,7 +294,7 @@ function PostList({ token, onEdit, onNew }) {
 
 /* ─── PostEditor ────────────────────────────────────── */
 const EMPTY_FORM = {
-  title: '', category: 'software', description: '', content: '', link: '', published: false,
+  title: '', category: 'software', description: '', content: '', js: '', link: '', published: false,
 }
 
 function PostEditor({ editId, token, onSaved, onBack }) {
@@ -225,6 +313,7 @@ function PostEditor({ editId, token, onSaved, onBack }) {
         category: p.category || 'software',
         description: p.description || '',
         content: p.content || '',
+        js: p.js || '',
         link: p.link || '',
         published: !!p.published,
       }))
@@ -280,7 +369,11 @@ function PostEditor({ editId, token, onSaved, onBack }) {
         <div className="adm-preview-wrap">
           <iframe
             className="adm-preview-frame"
-            srcDoc={form.content || '<p style="color:#888;font-family:sans-serif;padding:20px">콘텐츠가 없습니다.</p>'}
+            srcDoc={
+              form.content || form.js
+                ? buildSrcDoc(form.content, form.js)
+                : '<body style="font-family:sans-serif;color:#888;padding:20px">콘텐츠가 없습니다.</body>'
+            }
             title="미리보기"
           />
         </div>
@@ -332,14 +425,25 @@ function PostEditor({ editId, token, onSaved, onBack }) {
           </div>
 
           <div className="adm-form-row">
-            <label className="adm-label">
-              콘텐츠 <span className="adm-muted">(HTML + JS 사용 가능)</span>
-            </label>
+            <label className="adm-label">HTML</label>
             <textarea
               className="adm-editor"
               value={form.content}
               onChange={e => set('content', e.target.value)}
-              placeholder={'<h1>제목</h1>\n<p>본문 내용...</p>\n<script>console.log("hello")</script>'}
+              placeholder={'<h1>제목</h1>\n<p>본문 내용...</p>\n<div id="app"></div>'}
+              spellCheck={false}
+            />
+          </div>
+
+          <div className="adm-form-row">
+            <label className="adm-label">
+              JavaScript <span className="adm-muted">(&lt;script&gt; 태그 없이 작성)</span>
+            </label>
+            <textarea
+              className="adm-editor"
+              value={form.js}
+              onChange={e => set('js', e.target.value)}
+              placeholder={"document.getElementById('app').textContent = 'Hello!';\nconsole.log('loaded');"}
               spellCheck={false}
             />
           </div>
