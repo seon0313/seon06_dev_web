@@ -8,19 +8,21 @@ function json(data, status = 200) {
 }
 
 export async function onRequestGet({ request }) {
-  const url = new URL(request.url)
+  const url        = new URL(request.url)
   const serverType = url.searchParams.get('server_type') || ''
   const version    = url.searchParams.get('version') || ''
   const serverName = url.searchParams.get('server_name') || ''
+  const auth       = url.searchParams.get('auth') || ''
 
-  if (!serverType || !version || !serverName) {
-    return json({ error: 'server_type, version, server_name 필요' }, 400)
+  if (!serverType || !version || !serverName || !auth) {
+    return json({ error: 'server_type, version, server_name, auth 필요' }, 400)
   }
 
   const target = MC_API + '/api/v1/server_create' +
     '?server_type=' + encodeURIComponent(serverType) +
     '&version='     + encodeURIComponent(version) +
-    '&server_name=' + encodeURIComponent(serverName)
+    '&server_name=' + encodeURIComponent(serverName) +
+    '&auth='        + encodeURIComponent(auth)
 
   const res  = await fetch(target)
   const data = await res.json()
