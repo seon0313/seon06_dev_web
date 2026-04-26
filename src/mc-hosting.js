@@ -106,7 +106,7 @@
     verSel.innerHTML = '<option value="">불러오는 중...</option>';
     try {
       var res = await fetch(
-        MC_API + '/api/v1/version_list?server_type=' + encodeURIComponent(type.toLowerCase())
+        MC_API + '/api/v1/version_list?server_type=' + encodeURIComponent(type)
       );
       var data = await res.json();
       if (!data.status || !Array.isArray(data.releases)) throw new Error();
@@ -228,7 +228,7 @@
 
   async function createSrv(name, type, version) {
     var url = MC_API + '/api/v1/server_create' +
-      '?server_type=' + encodeURIComponent(type.toLowerCase()) +
+      '?server_type=' + encodeURIComponent(type) +
       '&version='     + encodeURIComponent(version) +
       '&server_name=' + encodeURIComponent(name);
 
