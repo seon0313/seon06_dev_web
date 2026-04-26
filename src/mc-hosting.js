@@ -234,7 +234,10 @@
     var data = await res.json().catch(function () { return {}; });
 
     if (!res.ok || !data.status) {
-      throw new Error(data.message || ('서버 생성 실패 (' + res.status + ')'));
+      var detail = Array.isArray(data.detail) && data.detail.length
+        ? data.detail.map(function (d) { return (d.loc ? d.loc.join('.') + ': ' : '') + d.msg; }).join(' / ')
+        : null;
+      throw new Error(detail || data.message || data.error || ('서버 생성 실패 (' + res.status + ')'));
     }
     return data.uid;
   }
