@@ -95,7 +95,8 @@
     try {
       var res  = await fetch(MC_PROXY + '/servers?auth=' + encodeURIComponent(authCode));
       var data = await res.json().catch(function () { return {}; });
-      servers  = Array.isArray(data.servers) ? data.servers
+      servers  = Array.isArray(data.data)    ? data.data
+               : Array.isArray(data.servers) ? data.servers
                : Array.isArray(data)         ? data
                : [];
       renderGrid();
@@ -124,17 +125,18 @@
   function buildCard(s) {
     var card    = document.createElement('div');
     card.className = 'srv-card';
-    var typeLow = (s.type || 'vanilla').toLowerCase();
+    var typeLow = (s.server_type || s.type || 'vanilla').toLowerCase();
     var online  = s.status === 'online' || s.status === 'running';
+    var uid     = s.uuid || s.uid || s.id || '';
     card.innerHTML =
       '<div class="srv-meta">' +
         '<span class="status-dot ' + (online ? 'on' : 'off') + '"></span>' +
         '<span class="srv-ver">' + esc(s.version) + '</span>' +
-        '<span class="type-badge ' + typeLow + '">' + esc(s.type) + '</span>' +
+        '<span class="type-badge ' + typeLow + '">' + esc(s.server_type || s.type) + '</span>' +
       '</div>' +
       '<span class="srv-name">' + esc(s.name || s.server_name) + '</span>' +
       '<span class="mc-muted" style="font-size:11px;font-family:monospace">' +
-        (s.uid || s.id || '').slice(0, 8) + '...' +
+        uid.slice(0, 8) + '...' +
       '</span>' +
       '<div class="card-actions">' +
         '<button class="btn-sm btn-tog">' + (online ? '끄기' : '켜기') + '</button>' +
@@ -250,7 +252,7 @@
   /* ── Console ──────────────────────────────────────────── */
   function openConsole(server) {
     selServer = server;
-    var uid   = server.uid || server.id || '';
+    var uid   = server.uuid || server.uid || server.id || '';
     consoleTitle.textContent = '콘솔 — ' + (server.name || server.server_name) + '  (' + uid.slice(0, 8) + '...)';
     consoleWrap.style.display      = 'flex';
     consoleWrap.style.flexDirection = 'column';
