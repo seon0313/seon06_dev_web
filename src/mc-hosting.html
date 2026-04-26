@@ -381,13 +381,8 @@
           </div>
           <div>
             <label class="mc-label" for="mca-ver">버전</label>
-            <select id="mca-ver" class="mc-select">
-              <option>1.21.1</option>
-              <option selected>1.20.1</option>
-              <option>1.19.4</option>
-              <option>1.18.2</option>
-              <option>1.16.5</option>
-              <option>1.12.2</option>
+            <select id="mca-ver" class="mc-select" disabled>
+              <option value="">버전을 불러오는 중...</option>
             </select>
           </div>
           <div>
@@ -397,6 +392,7 @@
           <div>
             <button id="mca-create-btn" class="btn-primary" style="width:auto;padding:9px 28px">서버 생성</button>
           </div>
+          <p id="mca-create-error" class="auth-error" style="margin-bottom:0"></p>
         </div>
       </div>
 
