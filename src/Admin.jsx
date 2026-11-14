@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import Logo from './Logo.jsx'
 
 function buildSrcDoc(html, js) {
   if (!html && !js) return ''
@@ -9,27 +10,36 @@ function buildSrcDoc(html, js) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg:          #f7f6f2;
-    --bg-card:     #ffffff;
-    --text:        #111110;
-    --text-muted:  #888884;
-    --accent:      #2c5f8a;
-    --accent-soft: #dce8f3;
-    --line:        #e5e3de;
-    --font-display: 'Cormorant Garamond', Georgia, serif;
-    --font-body:    'DM Sans', system-ui, sans-serif;
+    color-scheme: dark;
+    --bg:          #0a0c18;
+    --bg-2:        #0e1122;
+    --bg-card:     #12152a;
+    --text:        #e6e9ff;
+    --text-2:      #b4b9dc;
+    --text-muted:  #7a80a8;
+    --text-dim:    #4d5380;
+    --accent:      #4f7bff;
+    --accent-soft: rgba(79, 123, 255, 0.16);
+    --cyan:        #22d3ee;
+    --cyan-hi:     #5ee6f5;
+    --line:        #232848;
+    --line-2:      #2f3666;
+    --grad:        linear-gradient(120deg, #7c5cff 0%, #4f7bff 55%, #22d3ee 100%);
+    --font-display: 'JetBrains Mono', ui-monospace, monospace;
+    --font-mono:    'JetBrains Mono', ui-monospace, monospace;
+    --font-body:    'IBM Plex Sans KR', system-ui, sans-serif;
   }
   html { scroll-behavior: smooth; }
   body {
     background: var(--bg);
-    color: var(--text);
+    color: var(--text-2);
     font-family: var(--font-body);
     font-size: 16px;
-    line-height: 1.8;
+    line-height: 1.85;
     -webkit-font-smoothing: antialiased;
     max-width: 820px;
     margin: 0 auto;
@@ -37,46 +47,49 @@ function buildSrcDoc(html, js) {
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    font-weight: 300;
-    letter-spacing: -0.01em;
-    line-height: 1.15;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
     margin-bottom: 0.6em;
     margin-top: 1.6em;
     color: var(--text);
   }
-  h1 { font-size: clamp(32px, 4vw, 52px); }
-  h2 { font-size: clamp(24px, 3vw, 38px); }
-  h3 { font-size: clamp(18px, 2vw, 26px); }
+  h1 { font-size: clamp(30px, 4vw, 44px); font-weight: 800; letter-spacing: -0.04em; }
+  h2 { font-size: clamp(22px, 3vw, 30px); }
+  h2::before { content: '## '; color: var(--text-dim); font-weight: 400; }
+  h3 { font-size: clamp(18px, 2vw, 22px); }
   p  { margin-bottom: 1.1em; }
-  a  { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+  strong { color: var(--text); }
+  a  { color: var(--cyan); text-decoration: underline; text-underline-offset: 3px; }
   ul, ol { padding-left: 1.4em; margin-bottom: 1.1em; }
   li { margin-bottom: 0.4em; }
-  hr { border: none; border-top: 1px solid var(--line); margin: 2em 0; }
+  hr { border: none; border-top: 1px dashed var(--line-2); margin: 2em 0; }
   code {
-    font-family: 'Fira Code', 'SF Mono', monospace;
-    font-size: 0.875em;
+    font-family: var(--font-mono);
+    font-size: 0.86em;
     background: var(--accent-soft);
-    color: var(--accent);
+    color: var(--cyan-hi);
     padding: 2px 6px;
     border-radius: 4px;
   }
   pre {
-    background: #1e1e2e;
-    color: #cdd6f4;
-    padding: 20px 24px;
-    border-radius: 12px;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    color: var(--text-2);
+    padding: 18px 22px;
+    border-radius: 10px;
     overflow-x: auto;
     margin-bottom: 1.4em;
     font-size: 13px;
-    line-height: 1.7;
+    line-height: 1.75;
   }
   pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
-  img { max-width: 100%; border-radius: 12px; margin: 0.6em 0; }
+  img { max-width: 100%; border-radius: 10px; margin: 0.6em 0; }
   blockquote {
-    border-left: 3px solid var(--accent);
+    border-left: 2px solid;
+    border-image: var(--grad) 1;
     padding-left: 1.2em;
     color: var(--text-muted);
-    font-style: italic;
     margin: 1.4em 0;
   }
 </style>
@@ -119,7 +132,7 @@ export default function Admin() {
   return (
     <div className="adm-root">
       <header className="adm-header">
-        <span className="adm-logo">YS · Admin</span>
+        <a href="/" className="adm-logo"><Logo size={22} /> seon06<span className="adm-logo-sub">/admin</span></a>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           {view !== 'list' && (
             <button className="adm-btn-ghost" onClick={() => setView('list')}>← 목록</button>
@@ -375,7 +388,7 @@ function PostEditor({ editId, token, onSaved, onBack }) {
             srcDoc={
               form.content || form.js
                 ? buildSrcDoc(form.content, form.js)
-                : '<body style="font-family:sans-serif;color:#888;padding:20px">콘텐츠가 없습니다.</body>'
+                : '<body style="font-family:sans-serif;color:#7a80a8;background:#0a0c18;padding:20px">콘텐츠가 없습니다.</body>'
             }
             title="미리보기"
           />
