@@ -1,6 +1,7 @@
 import { createElement, Fragment, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Logo, { LogoArrow } from './Logo.jsx'
+import { getJSON } from './prefetch.js'
 
 const CATEGORIES = [
   { key: 'all',      label: 'all' },
@@ -38,8 +39,7 @@ export default function App() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/posts')
-      .then(r => r.json())
+    getJSON('/api/posts')
       .then(d => setProjects((d.posts || []).map(p => ({
         id: p.id, category: p.category,
         title: p.title, desc: p.description, link: p.link || '',

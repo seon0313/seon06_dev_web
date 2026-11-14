@@ -21,12 +21,15 @@ async function verifyToken(request, env) {
   }
 }
 
-function json(data, status = 200) {
+function json(data, status = 200, extraHeaders = {}) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...extraHeaders },
   })
 }
+
+// 공개 응답: 브라우저가 60초간 바로 쓰고, 이후 10분간은 먼저 보여 주고 뒤에서 새로 받음
+const PUBLIC_CACHE = { 'Cache-Control': 'public, max-age=60, stale-while-revalidate=600' }
 
 export async function onRequestGet({ request, env }) {
   const url = new URL(request.url)
@@ -36,12 +39,16 @@ export async function onRequestGet({ request, env }) {
     return json({ error: 'Unauthorized' }, 401)
   }
 
-  const stmt = showAll
-    ? env.DB.prepare('SELECT * FROM posts ORDER BY created_at DESC')
-    : env.DB.prepare('SELECT * FROM posts WHERE published=1 ORDER BY created_at DESC')
+  if (showAll) {
+    const { results } = await env.DB.prepare('SELECT * FROM posts ORDER BY created_at DESC').all()
+    return json({ posts: results }, 200, { 'Cache-Control': 'no-store' })
+  }
 
-  const { results } = await stmt.all()
-  return json({ posts: results })
+  // 공개 목록은 카드에 필요한 칸만 보냄 (본문 content/js 제외)
+  const { results } = await env.DB.prepare(
+    'SELECT id, title, category, description, link, created_at FROM posts WHERE published=1 ORDER BY created_at DESC'
+  ).all()
+  return json({ posts: results }, 200, PUBLIC_CACHE)
 }
 
 export async function onRequestPost({ request, env }) {

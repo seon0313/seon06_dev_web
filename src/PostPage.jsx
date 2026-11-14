@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import Logo from './Logo.jsx'
+import { getJSON } from './prefetch.js'
 
 export default function PostPage() {
   const { id } = useParams()
@@ -11,8 +12,7 @@ export default function PostPage() {
   const contentRef = useRef(null)
 
   useEffect(() => {
-    fetch(`/api/posts/${id}`)
-      .then(r => { if (!r.ok) { setNotFound(true); return null } return r.json() })
+    getJSON(`/api/posts/${id}`)
       .then(data => { if (data) setPost(data) })
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false))

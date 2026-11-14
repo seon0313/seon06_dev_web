@@ -21,10 +21,10 @@ async function verifyToken(request, env) {
   }
 }
 
-function json(data, status = 200) {
+function json(data, status = 200, extraHeaders = {}) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...extraHeaders },
   })
 }
 
@@ -35,7 +35,8 @@ export async function onRequestGet({ params, request, env }) {
 
   const isAdmin = await verifyToken(request, env)
   if (!post.published && !isAdmin) return json({ error: 'Not found' }, 404)
-  return json(post)
+  if (request.headers.get('Authorization')) return json(post, 200, { 'Cache-Control': 'no-store' })
+  return json(post, 200, { 'Cache-Control': 'public, max-age=60, stale-while-revalidate=600' })
 }
 
 export async function onRequestPut({ params, request, env }) {
